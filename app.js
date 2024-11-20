@@ -15,7 +15,7 @@ const db = new sqlite3.Database('banco-de-dados.db');
 // Cria as tabelas no banco de dados
 db.serialize(() => {
   db.run(
-    'CREATE TABLE IF NOT EXISTS eletronicos (id INTEGER PRIMARY KEY, eletronico TEXT, consumo REAL, status BOOLEAN, gasto TEXT, descricao TEXT)',
+    'CREATE TABLE IF NOT EXISTS eletronicos (id INTEGER PRIMARY KEY, eletronico TEXT, consumo REAL, status BOOLEAN, gasto TEXT, descricao TEXT, ambiente TEXT)',
   );
   db.run(
     'CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)',
@@ -38,12 +38,12 @@ const verificarToken = (req, res, next) => {
   });
 };
 
-// Rota para adicionar um novo eletronico
+// Rota para adicionar um novo eletrônico
 app.post('/eletronicos', verificarToken, (req, res) => {
-  const { eletronico, consumo, status, gasto, descricao } = req.body;
+  const { eletronico, consumo, status, gasto, descricao, ambiente } = req.body;
   db.run(
-    'INSERT INTO eletronicos (eletronico, consumo, status, gasto, descricao) VALUES (?, ?, ?, ?, ?)',
-    [eletronico, consumo, status, gasto, descricao],
+    'INSERT INTO eletronicos (eletronico, consumo, status, gasto, descricao, ambiente) VALUES (?, ?, ?, ?, ?, ?)',
+    [eletronico, consumo, status, gasto, descricao, ambiente],
     function (err) {
       if (err) {
         console.error('Erro ao inserir eletrônico:', err);
@@ -56,12 +56,13 @@ app.post('/eletronicos', verificarToken, (req, res) => {
         status,
         gasto,
         descricao,
+        ambiente,
       });
     },
   );
 });
 
-// Rota para obter todos os eletronicos
+// Rota para obter todos os eletrônicos
 app.get('/eletronicos', verificarToken, (req, res) => {
   db.all('SELECT * FROM eletronicos', [], (err, rows) => {
     if (err) {
@@ -89,10 +90,10 @@ app.get('/eletronicos/:id', verificarToken, (req, res) => {
 // Rota para editar um eletrônico existente
 app.put('/eletronicos/:id', verificarToken, (req, res) => {
   const { id } = req.params;
-  const { eletronico, consumo, status, gasto, descricao } = req.body;
+  const { eletronico, consumo, status, gasto, descricao, ambiente } = req.body;
   db.run(
-    'UPDATE eletronicos SET eletronico = ?, consumo = ?, status = ?, gasto = ?, descricao = ? WHERE id = ?',
-    [eletronico, consumo, status, gasto, descricao, id],
+    'UPDATE eletronicos SET eletronico = ?, consumo = ?, status = ?, gasto = ?, descricao = ?, ambiente = ? WHERE id = ?',
+    [eletronico, consumo, status, gasto, descricao, ambiente, id],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
